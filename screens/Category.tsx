@@ -1,24 +1,31 @@
-import { CategoryItem } from 'components/CategoryItem/CategoryItem';
+import { PackageItem } from 'components/PackageItem/PackageItem';
 import ScreenWrapper from 'components/ScreenWrapper';
-import { useCategoriesQuery } from 'queries/useCategoriesQuery';
+import { useCategoryQuery } from 'queries/useCategoryQuery';
 import { useCallback } from 'react';
 import { FlatList } from 'react-native';
 import { ActivityIndicator, Divider, Text } from 'react-native-paper';
 
-export default function CategoriesScreen({ navigation }) {
-  const { data, isLoading, error } = useCategoriesQuery();
+type CategoryScreenProps = {
+  navigation: any;
+  route: { params: { categoryId: string } };
+};
 
-  console.log(data);
+export const CategoryScreen = ({ navigation, route }: CategoryScreenProps) => {
+  const { data, isLoading, error } = useCategoryQuery(route.params.categoryId || '');
 
   const renderItem = useCallback(({ item }) => {
     return (
-      <CategoryItem
+      <PackageItem
         title={item.name}
-        description=""
-        icon="folder"
+        description={item.description}
+        rating={4}
         onPress={() =>
-          navigation.navigate('Category', {
-            categoryId: item.id,
+          navigation.navigate('Package', {
+            nPackage: {
+              id: item.id,
+              name: item.name,
+              npmName: item.npmName,
+            },
           })
         }
       />
@@ -43,4 +50,4 @@ export default function CategoriesScreen({ navigation }) {
       />
     </ScreenWrapper>
   );
-}
+};

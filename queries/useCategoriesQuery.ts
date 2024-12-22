@@ -5,7 +5,9 @@ import { firebaseDb } from 'utils/firebaseConfig';
 const fetchCategories = async () => {
   const response = await getDocs(collection(firebaseDb, 'categories'));
 
-  return response.docs.map((doc) => doc.data());
+  return response.docs.map((doc) => {
+    return { id: doc.id, ...doc.data() };
+  });
 };
 
 export const useCategoriesQuery = () => {

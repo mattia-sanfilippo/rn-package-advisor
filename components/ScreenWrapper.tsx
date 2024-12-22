@@ -10,6 +10,5 @@ export default function ScreenWrapper({ children }: ScreenWrapperProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
   },
 });

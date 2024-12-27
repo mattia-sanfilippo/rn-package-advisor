@@ -9,7 +9,7 @@ import {
 } from 'utils/axiosClient';
 import { firebaseDb } from 'utils/firebaseConfig';
 
-const fetchPackage = async ({ id, npmName }: Package) => {
+const fetchPackageWithReviews = async ({ id, npmName }: Package) => {
   const dbResponse = await getDoc(doc(firebaseDb, 'packages', id));
 
   const npmResponse = await npmRegistryApiClient.get(NPM_REGISTRY_ENDPOINTS.PACKAGE(npmName));
@@ -17,6 +17,7 @@ const fetchPackage = async ({ id, npmName }: Package) => {
   const npmDownloadsLastWeekResponse = await npmApiClient.get(
     NPM_ENDPOINTS.DOWNLOADS_LAST_WEEK(npmName)
   );
+
   const npmDownloadsLastMonthResponse = await npmApiClient.get(
     NPM_ENDPOINTS.DOWNLOADS_LAST_MONTH(npmName)
   );
@@ -31,9 +32,29 @@ const fetchPackage = async ({ id, npmName }: Package) => {
   };
 };
 
+const fetchPackage = async ({ npmName }: Package) => {
+  const response = await npmRegistryApiClient.get(NPM_REGISTRY_ENDPOINTS.PACKAGE(npmName));
+
+  const npmDownloadsLastWeekResponse = await npmApiClient.get(
+    NPM_ENDPOINTS.DOWNLOADS_LAST_WEEK(npmName)
+  );
+
+  const npmDownloadsLastMonthResponse = await npmApiClient.get(
+    NPM_ENDPOINTS.DOWNLOADS_LAST_MONTH(npmName)
+  );
+
+  return {
+    npm: response.data,
+    downloads: {
+      lastWeek: npmDownloadsLastWeekResponse.data.downloads,
+      lastMonth: npmDownloadsLastMonthResponse.data.downloads,
+    },
+  };
+};
+
 export const usePackageQuery = (nPackage: Package) => {
   return useQuery({
-    queryKey: ['package', nPackage.id],
-    queryFn: () => fetchPackage(nPackage),
+    queryKey: ['package', nPackage.npmName],
+    queryFn: () => (nPackage?.id ? fetchPackageWithReviews(nPackage) : fetchPackage(nPackage)),
   });
 };

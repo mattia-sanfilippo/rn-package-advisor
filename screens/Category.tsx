@@ -13,11 +13,12 @@ type CategoryScreenProps = {
 export const CategoryScreen = ({ navigation, route }: CategoryScreenProps) => {
   const { data, isLoading, error } = useCategoryQuery(route.params.categoryId || '');
 
-  const renderItem = useCallback(({ item }) => {
+  const renderItem = useCallback(({ item }: { item: App.Package }) => {
     return (
       <PackageItem
-        title={item.name}
+        name={item.name}
         description={item.description}
+        hasRating
         rating={4}
         onPress={() =>
           navigation.navigate('Package', {

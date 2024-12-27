@@ -1,13 +1,39 @@
-import ScreenWrapper from 'components/ScreenWrapper';
+import { PackageItem } from 'components/PackageItem/PackageItem';
+import { useSearchQuery } from 'queries/useSearchQuery';
 import { useState } from 'react';
-import { Searchbar } from 'react-native-paper';
+import { FlatList } from 'react-native';
+import { Divider, Searchbar } from 'react-native-paper';
 
-export default function SearchScreen() {
+type SearchScreenProps = {
+  navigation: any;
+};
+
+export default function SearchScreen({ navigation }: SearchScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
+  const { data } = useSearchQuery(searchQuery);
+
   return (
-    <ScreenWrapper>
-      <Searchbar value={searchQuery} onChangeText={setSearchQuery} />
-    </ScreenWrapper>
+    <FlatList
+      ListHeaderComponent={
+        <Searchbar placeholder="Search" onChangeText={setSearchQuery} value={searchQuery} />
+      }
+      ListHeaderComponentStyle={{ padding: 16 }}
+      data={data || []}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <PackageItem
+          {...item.package}
+          onPress={() =>
+            navigation.navigate('Package', {
+              nPackage: {
+                npmName: item.package.name,
+              },
+            })
+          }
+        />
+      )}
+      ItemSeparatorComponent={Divider}
+    />
   );
 }

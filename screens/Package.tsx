@@ -1,5 +1,8 @@
 import { npmLogo } from 'assets';
+import { Keywords } from 'components/Keywords/Keywords';
+import { ReviewsList } from 'components/ReviewsList/ReviewsList';
 import { usePackageQuery } from 'queries/usePackageQuery';
+import { useReviewsQuery } from 'queries/useReviewsQuery';
 import { useCallback } from 'react';
 import { Image, Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, Card, Headline, Text, Title } from 'react-native-paper';
@@ -10,39 +13,19 @@ export type Package = {
   npmName: string;
 };
 
-type NpmPackage = {
-  author: {
-    name: string;
-  };
-  description: string;
-  homepage: string;
-  keywords: string[];
-  license: string;
-  maintaners: {
-    name: string;
-    email: string;
-  }[];
-  name: string;
-  readme: string;
-  readmeFilename: string;
-  repository: {
-    type: string;
-    url: string;
-  };
-  'dist-tags': {
-    latest: string;
-    beta: string;
-    next: string;
-  };
-};
-
 type PackageScreenProps = {
   route: { params: { nPackage: Package } };
+  navigation: any;
 };
 
-export const PackageScreen = ({ route }: PackageScreenProps) => {
+export const PackageScreen = ({ route, navigation }: PackageScreenProps) => {
   const { nPackage } = route.params;
   const { data, isLoading, error } = usePackageQuery(nPackage);
+  const {
+    data: reviewsData,
+    isLoading: reviewsIsLoading,
+    error: reviewsError,
+  } = useReviewsQuery(nPackage?.npmName);
 
   const openHomepage = useCallback(() => {
     if (!data || !data.npm.homepage) {
@@ -52,11 +35,18 @@ export const PackageScreen = ({ route }: PackageScreenProps) => {
     Linking.openURL(data.npm.homepage);
   }, [data]);
 
-  if (isLoading) {
+  const navigateToTag = useCallback(
+    (tag: string) => {
+      navigation.navigate('Tag', { tag });
+    },
+    [navigation]
+  );
+
+  if (isLoading || reviewsIsLoading) {
     return <ActivityIndicator animating color="blue" />;
   }
 
-  if (error || !data) {
+  if (error || !data || reviewsError) {
     return <Text>Error: {error?.message}</Text>;
   }
 
@@ -66,8 +56,8 @@ export const PackageScreen = ({ route }: PackageScreenProps) => {
         <Card.Content>
           <View style={styles.titleCardContainer}>
             <View style={styles.headline}>
-              <Image source={npmLogo} style={{ width: 100, height: 100 }} />
-              <View style={{ flex: 1 }}>
+              <Image source={npmLogo} style={styles.npmLogo} />
+              <View style={styles.npmTitleWrapper}>
                 <Headline>{data.npm.name}</Headline>
                 <Text>{data.npm.description}</Text>
               </View>
@@ -89,32 +79,49 @@ export const PackageScreen = ({ route }: PackageScreenProps) => {
           </View>
         </Card.Content>
       </Card>
+      <Headline>Version</Headline>
+      <Text>{data.npm['dist-tags'].latest}</Text>
       <Headline>Downloads</Headline>
       <View style={styles.downloadsContainer}>
-        <Card style={{ flex: 1, alignItems: 'center' }}>
+        <Card style={styles.downloadsCard}>
           <Card.Content>
             <Headline>{data.downloads.lastMonth}</Headline>
             <Title>Last month</Title>
           </Card.Content>
         </Card>
-        <Card style={{ flex: 1, alignItems: 'center' }}>
+        <Card style={styles.downloadsCard}>
           <Card.Content>
             <Headline>{data.downloads.lastWeek}</Headline>
             <Title>Last week</Title>
           </Card.Content>
         </Card>
       </View>
+      <Headline>Keywords</Headline>
+      <Keywords keywords={data.npm.keywords} onPress={navigateToTag} />
+      <Headline>Reviews</Headline>
+      <Button mode="text" onPress={() => {}} icon="pencil">
+        Write a review
+      </Button>
+      <View>
+        <ReviewsList reviews={reviewsData || []} />
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  npmLogo: {
+    width: 100,
+    height: 100,
+  },
+  npmTitleWrapper: {
+    flex: 1,
+  },
   titleCardContainer: {
     gap: 16,
   },
   scrollViewContent: {
     padding: 16,
-    flex: 1,
     gap: 16,
   },
   headline: {
@@ -129,5 +136,9 @@ const styles = StyleSheet.create({
   downloadsContainer: {
     flexDirection: 'row',
     gap: 16,
+  },
+  downloadsCard: {
+    flex: 1,
+    alignItems: 'center',
   },
 });

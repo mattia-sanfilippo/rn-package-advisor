@@ -5,12 +5,14 @@ import { useCallback } from 'react';
 import { FlatList } from 'react-native';
 import { ActivityIndicator, Divider, Text } from 'react-native-paper';
 
-export default function CategoriesScreen({ navigation }) {
+type CategoriesScreenProps = {
+  navigation: any;
+};
+
+export default function CategoriesScreen({ navigation }: CategoriesScreenProps) {
   const { data, isLoading, error } = useCategoriesQuery();
 
-  console.log(data);
-
-  const renderItem = useCallback(({ item }) => {
+  const renderItem = useCallback(({ item }: { item: App.Category }) => {
     return (
       <CategoryItem
         title={item.name}

@@ -8,7 +8,7 @@ const fetchCategory = async (categoryId: string) => {
   );
 
   return response.docs.map((doc) => {
-    return { id: doc.id, ...doc.data() };
+    return { id: doc.id, ...doc.data() } as App.Package;
   });
 };
 

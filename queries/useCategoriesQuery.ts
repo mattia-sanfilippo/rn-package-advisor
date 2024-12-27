@@ -6,7 +6,7 @@ const fetchCategories = async () => {
   const response = await getDocs(collection(firebaseDb, 'categories'));
 
   return response.docs.map((doc) => {
-    return { id: doc.id, ...doc.data() };
+    return { id: doc.id, ...doc.data() } as App.Category;
   });
 };
 

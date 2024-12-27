@@ -42,6 +42,10 @@ export const PackageScreen = ({ route, navigation }: PackageScreenProps) => {
     [navigation]
   );
 
+  const navigateToAddReview = useCallback(() => {
+    navigation.navigate('AddReview', { id: nPackage.npmName });
+  }, [navigation, nPackage]);
+
   if (isLoading || reviewsIsLoading) {
     return <ActivityIndicator animating color="blue" />;
   }
@@ -99,7 +103,7 @@ export const PackageScreen = ({ route, navigation }: PackageScreenProps) => {
       <Headline>Keywords</Headline>
       <Keywords keywords={data.npm.keywords} onPress={navigateToTag} />
       <Headline>Reviews</Headline>
-      <Button mode="text" onPress={() => {}} icon="pencil">
+      <Button mode="text" onPress={navigateToAddReview} icon="pencil">
         Write a review
       </Button>
       <View>

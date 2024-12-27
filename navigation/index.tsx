@@ -5,6 +5,7 @@ import {
 } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { adaptNavigationTheme } from 'react-native-paper';
+import { AddReview } from 'screens/AddReview';
 import { CategoryScreen } from 'screens/Category';
 import { Package, PackageScreen } from 'screens/Package';
 import { TagScreen } from 'screens/Tag';
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   Category: { categoryId: string };
   Package: { nPackage: Package };
   Tag: { tag: string };
+  AddReview: { id: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -55,6 +57,13 @@ export default function RootStack() {
         <Stack.Screen name="Category" component={CategoryScreen} />
         <Stack.Screen name="Package" component={PackageScreen} />
         <Stack.Screen name="Tag" component={TagScreen} />
+        <Stack.Screen
+          name="AddReview"
+          component={AddReview}
+          options={{
+            headerTitle: 'Add Review',
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

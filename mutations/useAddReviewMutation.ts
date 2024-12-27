@@ -4,7 +4,10 @@ import { firebaseDb } from 'utils/firebaseConfig';
 import { queryClient } from 'utils/queryClient';
 
 const writeReview = async (review: { npmName: string; rating: number; description: string }) => {
-  await addDoc(collection(firebaseDb, 'reviews'), review);
+  await addDoc(collection(firebaseDb, 'reviews'), {
+    ...review,
+    createdAt: new Date(),
+  });
 };
 
 export const useAddReviewMutation = () => {
